@@ -3,7 +3,7 @@ import { useProducts } from "../../hooks/useProducts";
 import ProductCard from "../../components/ProductCard/ProductCard";
 
 export default function ProductList() {
-  const { products, loading, error } = useProducts();
+  const { products, loading, error, search, setSearch } = useProducts();
   const navigate = useNavigate();
 
   if (loading) return <h2>Loading products...</h2>;
@@ -11,7 +11,17 @@ export default function ProductList() {
 
   return (
     <div className="container">
+    
+    <div className="plp-header">
       <h1>Products</h1>
+      <input
+        className="search"
+        type="text"
+        placeholder="Search by brand or model..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      </div>
 
       <div className="grid">
         {products.map((product) => (
