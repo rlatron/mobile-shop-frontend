@@ -9,3 +9,8 @@ export const getProducts = () => {
 export const getProductById = (id) => {
   return api.get(`/api/product/${id}`);
 };
+
+// CART - add product
+export const addToCart = (payload) => {
+  return api.post("/api/cart", payload);
+};
