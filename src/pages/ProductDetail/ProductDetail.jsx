@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getProductById, addToCart } from "../../api/products";
 import { useCart } from "../../store/CartContext";
+import { loadCache, saveCache } from "../../utils/cache";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -15,22 +16,49 @@ export default function ProductDetail() {
 
   useEffect(() => {
     async function fetchProduct() {
-      try {
-        setLoading(true);
-        const res = await getProductById(id);
-        const data = res.data;
+          const cacheKey = `product-${id}`;
 
-        setProduct(data);
+          // TRY CACHE FIRST
+          const cachedProduct = loadCache(cacheKey);
 
-        // default selections (important requirement)
-        setSelectedColor(data.options?.colors?.[0]?.code);
-        setSelectedStorage(data.options?.storages?.[0]?.code);
-      } catch (err) {
-        console.error("Error loading product", err);
-      } finally {
-        setLoading(false);
-      }
-    }
+          if (cachedProduct) {
+            setProduct(cachedProduct);
+
+            setSelectedColor(
+              cachedProduct.options?.colors?.[0]?.code
+            );
+
+            setSelectedStorage(
+              cachedProduct.options?.storages?.[0]?.code
+            );
+
+            setLoading(false);
+
+            return;
+          }
+
+          try {
+            setLoading(true);
+
+            const res = await getProductById(id);
+
+            const data = res.data;
+
+            setProduct(data);
+
+            // SAVE CACHE
+            saveCache(cacheKey, data);
+
+            setSelectedColor(data.options?.colors?.[0]?.code);
+
+            setSelectedStorage(data.options?.storages?.[0]?.code);
+
+          } catch (err) {
+            console.error("Error loading product", err);
+          } finally {
+            setLoading(false);
+          }
+        }
 
     fetchProduct();
   }, [id]);
@@ -43,7 +71,7 @@ export default function ProductDetail() {
         storageCode: selectedStorage,
       });
 
-      setCartCount(res.data.count);
+      setCartCount((prev) => prev + 1);
     } catch (err) {
       console.error("Add to cart failed", err);
     }
@@ -55,7 +83,11 @@ export default function ProductDetail() {
   return (
     <div className="pdp-container">
       {/* BACK LINK */}
-      <Link to="/">← Back to products</Link>
+      <div className="back-link-wrapper">
+            <Link to="/" className="back-link">
+            ← Back to products
+            </Link>
+        </div>
 
       <div className="pdp-grid">
         {/* IMAGE COLUMN */}

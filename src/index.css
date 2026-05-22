@@ -104,3 +104,25 @@
 .cart {
   font-weight: bold;
 }
+
+.back-link-wrapper {
+  margin-bottom: 24px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  text-decoration: none;
+
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: black;
+}
